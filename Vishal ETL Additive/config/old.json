@@ -1,0 +1,38 @@
+{
+ "shift_time" :{
+    "A" : ["08:00:00","20:00:00"],
+    "B" : ["20:00:00","08:00:00"]
+  },
+  "Mixer Name": "Mixer 1",
+  "columns_to_select": [
+    "timestamp", "shift", "mixer_name", "batch_counter", "component_id",
+    "recycle_sand_set_point", "recycle_sand_actual", "bentonite_set_point", "bentonite_actual",
+    "coal_dust_set_point", "coal_dust_actual", "fss_set_point", "fss_actual",
+    "water_set_point", "water_actual", "inert_fines_set_point", "inert_fines_actual",
+    "compactability_smc_pct", "cosp_percentage_pct", "temperature_c", "total_seconds",
+    "total_water_ltr", "moisture_smc_pct", "wd1_ltr", "co1_pct"
+  ],
+  "columns_to_rename": {
+    "SHIFT_BATCH_NO": "batch_counter",
+    "RETURN_SAND_1_SET_KGS": "recycle_sand_set_point",
+    "RETURN_SAND_ACT_KGS_REPORT": "recycle_sand_actual",
+    "BENTONITE_SET_KGS": "bentonite_set_point",
+    "BENTONITE_ACT_KGS_REPORT": "bentonite_actual",
+    "COAL_SET_KGS": "coal_dust_set_point",
+    "COAL_DUST_ACT_KGS_REPORT": "coal_dust_actual",
+    "NEW_SAND_SET_KGS": "fss_set_point",
+    "NEW_SAND_ACT_KGS_REPORT": "fss_actual",
+    "WATER_SET_FLOW": "water_set_point",
+    "WATER_ACT_FLOW": "water_actual",
+    "FINE_SET_KGS": "inert_fines_set_point",
+    "FINE_DUST_ACT_KGS_REPORT": "inert_fines_actual",
+    "BE_22_ACT_CURRENT": "co1_pct"
+  },
+  "database": {
+    "host": "sandman.co.in",
+    "port": "43306",
+    "user": "vishalscadauser",
+    "password": "Vishal_scada#2023",
+    "database_name": "vishal_scada"
+  }
+}
