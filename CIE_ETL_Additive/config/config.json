@@ -1,0 +1,44 @@
+{
+  "shift_time": {
+    "A" : ["07:00:00","15:00:00"],
+    "B" : ["15:00:00","23:00:00"],
+    "C":["23:00:00","07:00:00"]
+  },
+  "Batch_reset": ["date", "shift"],
+  "Mixer Name": "Disa Mixer",
+  "columns_to_select": [
+     "shift", "mixer_name", "batch_counter", "component_id",
+    "bentonite_set_point", "bentonite_actual",
+    "fss_actual",
+    "inert_fines_set_point", "inert_fines_actual",
+    "co_final_percentage", "cosp_percent",
+    "temp_st1c", "total_seconds", "total_water",
+    "moisture_percentage", "wd1", "co1"
+  ],
+"output_columns": {
+  "co_final_percentage": "compactability_smc_pct",
+  "cosp_percent": "cosp_percentage_pct",
+  "temp_st1c": "temperature_c",
+  "total_water": "total_water_ltr",
+  "moisture_percentage": "moisture_smc_pct",
+  "wd1": "wd1_ltr",
+  "co1": "co1_pct"
+},
+
+  "columns_to_rename": {
+    "Bentonite_set_value": "bentonite_set_point",
+    "Bentonite_actual_value": "bentonite_actual",
+    "new_sand_weight": "fss_actual",
+    "return_sand_capacity_set": "return_sand_set_point",
+    "return_sand_capacity_actual": "return_sand_actual",
+    "coal_dust_actual_value"  : "inert_fines_actual",
+    "coal_dust_set_value": "inert_fines_set_point"
+  },
+  "database": {
+    "host": "sandman.co.in",
+    "port": "43306",
+    "user": "mciescadauser",
+    "password": "Mcie_Data#2024",
+    "database_name": "mcie_scada"
+  }
+}
