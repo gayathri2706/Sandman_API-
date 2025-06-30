@@ -1,0 +1,21 @@
+{
+    "shift_time" :{
+        "A" : ["06:00:00","14:00:00"],
+        "B" : ["14:00:00","22:00:00"],
+        "C":["22:00:00","06:00:00"]
+    },
+    "Batch_reset":["Date","Shift"],
+    "Mixer Name":"Mixer 1",
+
+    "columns_to_select":["Date", "Time", "Shift", "Mixer Name", "Batch Counter", "Component ID", "Recycle sand Actual","Bentonite Actual", "Coal Dust Actual", "FSS Actual", "Water Actual", 
+    "Compactability SMC (%)", "COSP Percentage (%)", "Temperature (C)", "Total Seconds (seconds)",
+    "Total Water (ltr)", "Moisture SMC (%)", "WD1 (ltr)", "CO1 (%)"
+    ],
+    "columns_to_rename":{
+        "Component ID":"Component Id",
+        "Recycle sand Actual": "Return_Sand_Act_Kgs",
+        "Bentonite Actual": "Bentonite",
+        "Coal Dust Actual": "Coal",
+        "FSS Actual": "NewSand"
+    }
+}
