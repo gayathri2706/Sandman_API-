@@ -1,0 +1,23 @@
+{"shift_time" :{
+    "A" : ["04:00:00","15:00:00"],
+    "B" : ["15:00:00","04:00:00"]
+},
+"Batch_reset":["Date","Shift"],
+"Mixer Name":"West Muller",
+"columns_to_select":["Date", "Time", "Shift", "Mixer Name", "Batch Counter", "Component ID",
+    "Recycle sand Set Point", "Recycle sand Actual", "bond_weight", "bond_weight_sp",
+    "Coal Dust Set Point", "Coal Dust Actual", "FSS  Set Point", "FSS Actual",
+    "Water Set Point", "Water  Actual", "Inert Fines Set Point", "Inert Fines Set Actual",
+    "Compactability SMC (%)", "COSP Percentage (%)", "Temperature (C)", "Total Seconds (seconds)",
+    "Total Water (ltr)", "Moisture SMC (%)", "WD1 (ltr)", "CO1 (%)"
+],
+"columns_to_rename":{
+    "Recycle sand Set Point": "sand_weight_sp",
+    "Recycle sand Actual":"sand_weight",
+    "bond_weight": "Bentonite_Act_Kgs",
+    "bond_weight_sp": "Bentonite_Set_Kgs",
+    "Water Set Point": "water_added_sp",
+    "Water  Actual": "water_added"
+
+}
+}
