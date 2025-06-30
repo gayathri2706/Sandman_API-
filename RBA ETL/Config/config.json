@@ -1,0 +1,48 @@
+{
+  "shift_time": {
+    "A": ["07:00:00", "19:00:00"],
+    "B": ["19:00:00", "07:00:00"]
+  },
+  "Batch_reset": ["date", "shift"],
+  "Mixer Name": "Mixer 1",
+  "columns_to_select": [
+    "shift", "mixer_name", "batch_counter", "component_id",
+    "recycle_sand_set_point", "recycle_sand_actual", "pibond_set_point", "pibond_actual",
+    "coal_dust_set_point", "coal_dust_actual", "fss_set_point", "fss_actual",
+    "water_set_point", "water_actual", "inert_fines_set_point", "inert_fines_actual",
+    "co_final_percentage", "cosp_percent", "temp_st1c", "total_seconds",
+    "total_water", "moisture_percentage", "wd1", "co1"
+  ],
+  "output_columns": {
+    "timestamp": "timestamp",
+    "co_final_percentage": "compactability_smc_pct",
+    "cosp_percent": "cosp_percentage_pct",
+    "temp_st1c": "temperature_c",
+    "total_seconds": "total_seconds",
+    "total_water": "total_water_ltr",
+    "moisture_percentage": "moisture_smc_pct",
+    "wd1": "wd1_ltr",
+    "co1": "co1_pct"
+  },
+  "columns_to_rename": {
+    "Return_Sand_Set_Kgs": "recycle_sand_set_point",
+    "Return_Sand_Act_Kgs": "recycle_sand_actual",
+    "New_Sand_Set_kgs": "fss_set_point",
+    "New_Sand_Act_Kgs": "fss_actual",
+    "Bentonite_Set_Kgs": "pibond_set_point",
+    "Bentonite_Act_Kgs": "pibond_actual",
+    "Coal_Dust_Set_Kgs": "coal_dust_set_point",
+    "Coal_Dust_Act_Kgs": "coal_dust_actual",
+    "Fine_Dust_Set_Kgs": "inert_fines_set_point",
+    "Fine_Dust_Act_Kgs": "inert_fines_actual",
+    "Water_Dosing_Set_Litre": "water_set_point",
+    "Water_Dosing_Act_Litre": "water_actual"
+  },
+  "database": {
+    "host": "sandman.co.in",
+    "port": "43306",
+    "user": "rbauser",
+    "password": "Rba_Data#2024",
+    "database_name": "rba_data"
+  }
+}
