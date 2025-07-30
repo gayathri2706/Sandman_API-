@@ -83,12 +83,9 @@ matched_df['Mixer Name']=config['Mixer Name']
 matched_df['Water Actual']=matched_df['Total Water (ltr)']
 matched_df.rename(columns={'Date_x': 'Date', 'Time_x': 'Time'}, inplace=True)
 matched_df['Recycle sand Actual']=2500
-#matched_df.to_excel("matched_data.xlsx", index=False)
-df = matched_df[config["columns_to_select"]]
 
-df['Date'] = pd.to_datetime(df['Date'],format='%Y-%m-%d')
-df['Time'] = pd.to_datetime(df['Time'].astype(str)).dt.time
-
+matched_df['Date'] = pd.to_datetime(matched_df['Date'],format='%Y-%m-%d')
+matched_df['Time'] = pd.to_datetime(matched_df['Time'].astype(str)).dt.time
 def compute_actual_datetime(row):
     base_date = row['Date']
     time = row['Time']
@@ -100,14 +97,22 @@ def compute_actual_datetime(row):
         return base_datetime + timedelta(days=1)
     else:
         return base_datetime
-df['ActualDateTime'] = df.apply(compute_actual_datetime, axis=1)
-df = df.sort_values(by=['ActualDateTime'])
-df.drop(columns=['ActualDateTime'], errors='ignore', inplace=True)
+    
+matched_df['timestamp'] = matched_df.apply(compute_actual_datetime, axis=1)
+matched_df = matched_df.sort_values(by=['timestamp'])
+
+#matched_df.to_excel("matched_data.xlsx", index=False)
+df = matched_df[config["columns_to_select"]]
+
+# Convert columns to appropriate data types 
+float_cols = df.select_dtypes(include=['float64']).columns
+df[float_cols] = df[float_cols].round(2)
 
 # Optional: Format Date before saving
 df['Date'] = pd.to_datetime(df['Date']).dt.strftime('%Y-%m-%d')
+df['timestamp'] = df['timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
+print(df[['timestamp','Date']].head())
 
 df.to_excel("munjal_output.xlsx", index=False)
 print("Data processing complete. Output saved to 'munjal_output.xlsx'.")
-
 
