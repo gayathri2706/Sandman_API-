@@ -7,7 +7,7 @@
     "Batch_reset":["Date","Shift"],
     "Mixer Name":"Mixer 1",
 
-    "columns_to_select":["Date", "Time", "Shift", "Mixer Name", "Batch Counter", "Component ID", "Recycle sand Actual","Bentonite Actual", "Coal Dust Actual", "FSS Actual", "Water Actual", 
+    "columns_to_select":["timestamp","Date", "Time", "Shift", "Mixer Name", "Batch Counter", "Component ID", "Recycle sand Actual","Bentonite Actual", "Coal Dust Actual", "FSS Actual", "Water Actual", 
     "Compactability SMC (%)", "COSP Percentage (%)", "Temperature (C)", "Total Seconds (seconds)",
     "Total Water (ltr)", "Moisture SMC (%)", "WD1 (ltr)", "CO1 (%)"
     ],
