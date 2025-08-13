@@ -74,13 +74,10 @@ def run_etl(config, engine, connection, target_table):
         return data
     df_add = date_adjust(df_add,"datetime",True)
 
-
-
     column_pairs = [
         ('Bentonite_set_value', 'Bentonite_actual_value'),
         ("return_sand_capacity_set", "return_sand_capacity_actual"),
         ("Fines_set_value", "Fines_actual_value"),
-        ("coal_dust_set_value", "coal_dust_actual_value"),
     ]
 
     def clean_actual_columns(df: pd.DataFrame, column_pairs: List[Tuple[str, str]]) -> pd.DataFrame:
@@ -125,108 +122,63 @@ def run_etl(config, engine, connection, target_table):
         direction='nearest',
     )
 
- # Extract temporary date and time parts for processing
-    matched_df['date'] = matched_df['datetime'].dt.date
-    matched_df['time'] = matched_df['datetime'].dt.time
     matched_df = matched_df.sort_values(['date', 'time'])
     
     # Process product data for component lookup
     prod_data['StartTime'] = pd.to_datetime(prod_data['date'] + pd.to_timedelta(prod_data['start_time']))
     prod_data['EndTime'] = pd.to_datetime(prod_data['date'] + pd.to_timedelta(prod_data['end_time']))
    
-    # Fix end times that cross midnight
-    midnight_crossings = prod_data['EndTime'] < prod_data['StartTime']
-    prod_data.loc[midnight_crossings, 'EndTime'] += pd.Timedelta(days=1)
-   
-    # Create a lookup dictionary for faster component_id lookups
-    component_ranges = []
-    for _, row in prod_data.iterrows():
-        component_ranges.append({
-            'start': row['StartTime'],
-            'end': row['EndTime'],
-            'component_id': row['component_id'],
-            'span_hours': (row['EndTime'] - row['StartTime']).total_seconds() / 3600
-        })
-   
-    @lru_cache(maxsize=1000)
-    def get_component_id(dt_str):
-        dt = pd.Timestamp(dt_str)
-        dt_next_day = dt + pd.Timedelta(days=1)
-       
-        # First try with the original datetime
-        for comp_range in component_ranges:
-            if comp_range['start'] <= dt <= comp_range['end']:
-                return comp_range['component_id']
-       
-        # For multi-day components, check next day
-        for comp_range in component_ranges:
-            if comp_range['span_hours'] > 12:  # Only check for long-running components
-                if comp_range['start'] <= dt_next_day <= comp_range['end']:
-                    return comp_range['component_id']
-       
+    def get_component_id(dt):
+        for _, row in prod_data.iterrows():
+            start = row['StartTime']
+            end = row['EndTime']
+    
+            # Shift that crosses midnight but is still part of the same foundry day
+            if end < start:
+                if dt >= start or dt <= end:
+                    return row['component_id']
+            else:
+                if start <= dt <= end:
+                    return row['component_id']
         return None
- 
-    # Apply the component lookup function
-    matched_df['component_id'] = matched_df['datetime'].astype(str).apply(get_component_id)
+
+    matched_df['component_id'] = matched_df['datetime'].apply(get_component_id)
     matched_df['mixer_name'] = config['Mixer Name']
    
-    # Assign shift based on time
-    def assign_shift(row):
-        shift_a_start = datetime.strptime(config["shift_time"]["A"][0], "%H:%M:%S").time()
-        shift_b_start = datetime.strptime(config["shift_time"]["B"][0], "%H:%M:%S").time()
-       
-        if shift_a_start <= row.time() < shift_b_start:
-            return 'A'
-        else:
-            return 'B'
-   
-    matched_df['shift'] = matched_df['datetime'].apply(lambda dt: assign_shift(dt))
- 
-    # Create the timestamp column properly accounting for shift
-    def compute_timestamp(row):
+    df = matched_df[config["columns_to_select"]]
+
+    df['date'] = pd.to_datetime(df['date'])
+    df['time'] = pd.to_timedelta(df['time'].astype(str)).apply(lambda x: (datetime.min + x).time())
+
+    def compute_actual_datetime(row):
         base_datetime = datetime.combine(row['date'], row['time'])
-       
-        # Adjust for B shift times after midnight
+        
         if row['shift'] == 'B' and row['time'] < datetime.strptime("07:00", "%H:%M").time():
             return base_datetime + timedelta(days=1)  
         else:
             return base_datetime
- 
-    # Create the timestamp column
-    matched_df['timestamp'] = matched_df.apply(compute_timestamp, axis=1)
-    matched_df.to_excel("matched_data.xlsx", index=False)
-    # List of columns to select (excluding date and time, including timestamp)
-    columns_to_select = [col for col in config["columns_to_select"] if col not in ['date', 'time']]
-    columns_to_select.insert(0, 'timestamp')  # Add timestamp as the first column
-    
-    # Check if all required columns exist
-    missing_columns = [col for col in columns_to_select if col not in matched_df.columns]
-    if missing_columns:
-        print(f"Warning: Missing columns in dataframe: {missing_columns}")
-        print("Available columns:", matched_df.columns.tolist())
-       
-        # Fill missing columns with NaN
-        for col in missing_columns:
-            matched_df[col] = np.nan
- 
-    # Select only the needed columns first
-    df = matched_df[columns_to_select]
 
+    df['timestamp'] = df.apply(compute_actual_datetime, axis=1)
+    df['date']=df['date'].dt.date
+
+    df = df.sort_values(by=['timestamp'])
+    
     # Rename columns to match the target database schema
     output_columns = config["output_columns"].copy()
-    df.rename(columns=output_columns, inplace=True)
-
-
-    # Sort by timestamp
-    df = df.sort_values(by=['timestamp'])
-   
-
     
     # Ensure timestamp is included in output columns mapping
     if 'timestamp' not in output_columns:
         output_columns['timestamp'] = 'timestamp'
     
+    # Apply column renaming
+    df.rename(columns=output_columns, inplace=True)
 
+    float_cols = df.select_dtypes(include=['float64']).columns
+    df[float_cols] = df[float_cols].round(2)
+
+    # Show sample data
+    print("Sample of new data to be inserted:")
+    print(df.head())
    
     # Filter out records that already exist in the database
     if last_timestamp is not None:

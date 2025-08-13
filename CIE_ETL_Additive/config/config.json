@@ -7,7 +7,7 @@
   "Batch_reset": ["date", "shift"],
   "Mixer Name": "Disa Mixer",
   "columns_to_select": [
-     "shift", "mixer_name", "batch_counter", "component_id",
+     "shift", "mixer_name","date", "time", "batch_counter", "component_id",
     "bentonite_set_point", "bentonite_actual",
     "fss_actual",
     "inert_fines_set_point", "inert_fines_actual",
@@ -16,6 +16,7 @@
     "moisture_percentage", "wd1", "co1"
   ],
 "output_columns": {
+  "timestamp": "timestamp",
   "co_final_percentage": "compactability_smc_pct",
   "cosp_percent": "cosp_percentage_pct",
   "temp_st1c": "temperature_c",
