@@ -7,12 +7,13 @@
   "Batch_reset": ["date", "shift"],
   "Mixer Name": "Disa Mixer",
   "columns_to_select": [
-     "shift", "mixer_name","date", "time", "batch_counter", "component_id",
+     "shift", "mixer_name", "date", "time", "batch_counter", "component_id",
     "bentonite_set_point", "bentonite_actual",
     "fss_actual",
-    "inert_fines_set_point", "inert_fines_actual",
+    "inert_fines_set_point", "inert_fines_actual", "coal_dust_set_point", "coal_dust_actual",
+    "recycle_sand_set_point", "recycle_sand_actual",
     "co_final_percentage", "cosp_percent",
-    "temp_st1c", "total_seconds", "total_water",
+    "temp_st1c", "total_seconds", "water_actual","total_water",
     "moisture_percentage", "wd1", "co1"
   ],
 "output_columns": {
@@ -30,10 +31,12 @@
     "Bentonite_set_value": "bentonite_set_point",
     "Bentonite_actual_value": "bentonite_actual",
     "new_sand_weight": "fss_actual",
-    "return_sand_capacity_set": "return_sand_set_point",
-    "return_sand_capacity_actual": "return_sand_actual",
+    "return_sand_capacity_set": "recycle_sand_set_point",
+    "return_sand_capacity_actual": "recycle_sand_actual",
     "coal_dust_actual_value"  : "inert_fines_actual",
-    "coal_dust_set_value": "inert_fines_set_point"
+    "coal_dust_set_value": "inert_fines_set_point",
+    "Fines_set_value": "coal_dust_set_point",
+    "Fines_actual_value":"coal_dust_actual"
   },
   "database": {
     "host": "sandman.co.in",
