@@ -171,28 +171,71 @@ def run_etl(config, engine, connection, target_table):
     prod_data['StartTime'] = pd.to_datetime(prod_data['date'] + pd.to_timedelta(prod_data['start_time']))
     prod_data['EndTime'] = pd.to_datetime(prod_data['date'] + pd.to_timedelta(prod_data['end_time']))
    
-    def get_component_id(dt):
-        # Extract the date from the timestamp
-        current_date = dt.date()
+    def get_component_id(dt, prod_data, tolerance_minutes=45, debug=False):
+        """
+        Returns the ComponentId for datetime `dt` from prod_data (already in foundry time).
+        - Exact match wins.
+        - If dt lies between components, prefer *previous* component (never the next one).
+        - Tolerance only applies backward (after end time).
+        """
+        if pd.isna(dt):
+            return None
     
-        # Filter prod_data for only that date
-        day_data = prod_data[prod_data['date'].dt.date == current_date]
+        dt = pd.to_datetime(dt, errors='coerce')
+        if pd.isna(dt):
+            return None
     
-        for _, row in day_data.iterrows():
+        df = prod_data.copy()
+        df['StartTime'] = pd.to_datetime(df['StartTime'], errors='coerce')
+        df['EndTime'] = pd.to_datetime(df['EndTime'], errors='coerce')
+    
+        nearest_component = None
+        min_diff_seconds = float('inf')
+    
+        for _, row in df.iterrows():
+            comp = row.get('ComponentId', None)
+            if comp is None:
+                continue
+    
             start = row['StartTime']
             end = row['EndTime']
+            if pd.isna(start) or pd.isna(end):
+                continue
     
-            # Handle midnight crossing
+            # Handle intervals crossing midnight
             if end < start:
-                if dt >= start or dt <= end:
-                    return row['component_id']
+                end += timedelta(days=1)
+    
+            # --- Exact match ---
+            if start <= dt <= end:
+                if debug:
+                    print(f" Exact match: {comp} ({start.time()} - {end.time()})")
+                return comp
+    
+            # --- If dt is after end (backward tolerance) ---
+            if dt > end:
+                diff = (dt - end).total_seconds()
+                if diff <= tolerance_minutes * 60 and diff < min_diff_seconds:
+                    nearest_component = comp
+                    min_diff_seconds = diff
+                    if debug:
+                        print(f"⬅️  Using previous component {comp}, diff={diff/60:.1f} min")
+    
+            # --- If dt < start (future interval) ---
+            # Skip — foundry rule: do not pick future component before it starts
+            elif dt < start:
+                continue
+    
+        if debug:
+            if nearest_component:
+                print(f"Final chosen component: {nearest_component}")
             else:
-                if start <= dt <= end:
-                    return row['component_id']
-        return None
- 
-
-    matched_df['component_id'] = matched_df['datetime'].apply(get_component_id)
+                print("No component found within tolerance")
+    
+        return nearest_component               
+    
+    matched_df['component_id'] = matched_df['datetime'].apply(
+    lambda x: get_component_id(x, prod_data, tolerance_minutes=45, debug=False))
     matched_df['mixer_name'] = config['Mixer Name']
     matched_df['water_actual'] = matched_df['total_water']
     df = matched_df[config["columns_to_select"]]
@@ -323,4 +366,5 @@ if __name__ == "__main__":
         print("ETL process terminated by user.")
     finally:
         connection.close()
+
         print("Database connection closed.")
